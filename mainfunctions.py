@@ -26,17 +26,20 @@ def create_alpha_list(L, K, prefix=False, reverse=False):
 
 class ZTD(Dataset):
     """ZTD - Z-vectors TimeSeries Dataset"""
-
     def __init__(self, data, alphas, L, K, forecast_horizon=1, backward_indexation=True):
-        self.N = len(data)
-        self.L, self.K = L, K
+        self.L = L
+        self.K = K
+        self.data = data
+        self.alphas = alphas
+
         self.maxind = torch.max(alphas)
-        self.data, self.alphas = data, alphas
+        self.length_of_timeseries = len(data)
+        
         self.backward_indexation = backward_indexation
         self.forecast_horizon = forecast_horizon
 
     def __len__(self):
-        return self.N - self.maxind - self.forecast_horizon + 1
+        return self.length_of_timeseries - self.maxind - self.forecast_horizon + 1
 
     def __getitem__(self, idx):
         if idx >= len(self) or idx <= -len(self):
@@ -51,9 +54,11 @@ class ZTD(Dataset):
             idx += self.maxind 
 
         x = torch.tensor([], dtype=torch.float32)
+
         for alpha in self.alphas:
             x = torch.cat((x, self.data[idx - alpha].unsqueeze(0)), dim=0)
         y = self.data[idx : idx + self.forecast_horizon]
+        
         return x, y
 
 

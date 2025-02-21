@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 import time
 
 
+matplotlib.use('TkAgg')
 
 def lorenz(t, state, sigma, rho, beta):
     x, y, z = state
@@ -14,7 +16,7 @@ def lorenz(t, state, sigma, rho, beta):
     return [dxdt, dydt, dzdt]
 
 if input("Do you want to generate new Lorenz series (y)/n?\n") in {'y', ''}:
-    length = int(input("How long should the series be?\nEnter a number from  to \n"))
+    length = int(input("How long should the series be?\nEnter a number from 1 to 1000\n"))
     gamma = float("0."+input("Enter float from 0 to 1 \n'frequency of the saved points from the series'\n0."))
     n_points = max(2, int(200000 * gamma))
 
@@ -23,7 +25,7 @@ if input("Do you want to generate new Lorenz series (y)/n?\n") in {'y', ''}:
     beta = 8 / 3
 
     initial_state = [1.0, 0.0, 0.0]
-    t_span = (0, length)
+    t_span = (0, 10 * length)
     t_eval = np.linspace(t_span[0], t_span[1], n_points)
     solution = solve_ivp(lorenz, t_span, initial_state, t_eval=t_eval, args=(sigma, rho, beta))
 
@@ -47,3 +49,5 @@ ax.set_xlabel('Index')
 ax.set_ylabel('X')
 plt.title('Lorenz Attractor')
 plt.show()
+
+
