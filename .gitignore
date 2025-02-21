@@ -1,0 +1,4 @@
+venv
+.venv
+lorenz_attractor.csv
+__pycache__
