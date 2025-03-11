@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from mainfunctions import *
 
-L, K = 10, 10
+L, K = 3, 5
 learn_rate = 0.0003
 num_of_cpu_workers = 12
 cpu, cuda = "cpu", "cuda"
@@ -57,15 +57,6 @@ model = model.to(cuda)
 criterion = nn.MSELoss()
 optim = torch.optim.SGD(model.parameters(), lr=learn_rate)
 
-# # plot
-# plt.ion()
-# fig, ax = plt.subplots()
-# losses = []
-# line, = ax.plot(losses)
-# ax.set_xlabel('Iteration')
-# ax.set_ylabel('Loss')
-# #
-
 for xb, yb in train_loader:
     
     xb = xb.squeeze(0)
@@ -78,18 +69,7 @@ for xb, yb in train_loader:
     loss.backward()
     optim.step()
     optim.zero_grad()
-    
-    # # update
-    # losses.append(loss.item())
-    # line.set_xdata(range(len(losses)))
-    # line.set_ydata(losses)
-    # ax.relim()
-    # ax.autoscale_view()
-    # fig.canvas.draw()
-    # fig.canvas.flush_events()
-    # time.sleep(15)
-    # break
-    # #
+
 
 
 
