@@ -16,16 +16,16 @@ def lorenz(t, state, sigma, rho, beta):
     return [dxdt, dydt, dzdt]
 
 if input("Do you want to generate new Lorenz series (y)/n?\n") in {'y', ''}:
-    length = int(input("How long should the series be?\nEnter a number from 1 to 1000\n"))
-    gamma = float("0."+input("Enter float from 0 to 1 \n'frequency of the saved points from the series'\n0."))
-    n_points = max(2, int(200000 * gamma))
+    length = int(input("\a number from 1 to 10000...\n"))
+    gamma = float("0."+input("Enter float from 0 to 1 \n \n'frequency(density) of the saved points from the series'\n0."))
+    n_points = max(2, int(20000 * gamma))
 
     sigma = 10
     rho = 28
     beta = 8 / 3
 
     initial_state = [1.0, 0.0, 0.0]
-    t_span = (0, 10 * length)
+    t_span = (0, 1 * length)
     t_eval = np.linspace(t_span[0], t_span[1], n_points)
     solution = solve_ivp(lorenz, t_span, initial_state, t_eval=t_eval, args=(sigma, rho, beta))
 
