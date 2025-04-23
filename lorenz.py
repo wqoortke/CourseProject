@@ -16,7 +16,7 @@ def lorenz(t, state, sigma, rho, beta):
     return [dxdt, dydt, dzdt]
 
 if input("Do you want to generate new Lorenz series (y)/n?\n") in {'y', ''}:
-    length = int(input("\a number from 1 to 10000...\n"))
+    length = int(input("input length of desirable data for training\n"))
     gamma = float("0."+input("Enter float from 0 to 1 \n \n'frequency(density) of the saved points from the series'\n0."))
     n_points = max(2, int(20000 * gamma))
 
