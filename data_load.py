@@ -1,8 +1,7 @@
 import itertools
+import pandas as pd
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import *
 
 # in particular [1, 2, 1] and [6, 2, 1] are just the same observations but shifted, 
 # because indeces are i+1, i+3, i+4 and i+6, i+8, i+9 which is all previous but +5
@@ -11,11 +10,12 @@ from torch.utils.data import Dataset, DataLoader
 # other approach is to decrease density of alphas in list,
 # so that we extend horizons and keep memory not exceeding limit
 
+
 def generate_alpha(L, K):
     for combination in itertools.product(range(1, K + 1), repeat=L):
         yield list(combination)
 
-def create_alpha_list(L, K, prefix=False, reverse=False):
+def create_alpha_list(L, K, prefix=True, reverse=True):
     alphas = torch.tensor(list(generate_alpha(L, K)), dtype=torch.int32)
     if prefix:
         for i, nums in enumerate(alphas):
@@ -25,10 +25,8 @@ def create_alpha_list(L, K, prefix=False, reverse=False):
     return alphas
 
 class ZTD(Dataset):
-    """ZTD - Z-vectors TimeSeries Dataset"""
-    def __init__(self, data, alphas, L, K, forecast_horizon=1, backward_indexation=True):
-        self.L = L
-        self.K = K
+    """ZTD - Z-blocks TimeSeries Dataset"""
+    def __init__(self, data, alphas, forecast_horizon=1, backward_indexation=False):
         self.data = data
         self.alphas = alphas
 
@@ -60,5 +58,3 @@ class ZTD(Dataset):
         y = self.data[idx : idx + self.forecast_horizon]
         
         return x, y
-
-

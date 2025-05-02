@@ -6,7 +6,7 @@ from scipy.integrate import solve_ivp
 import time
 
 
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 
 def lorenz(t, state, sigma, rho, beta):
     x, y, z = state

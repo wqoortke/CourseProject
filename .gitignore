@@ -1,4 +1,5 @@
 venv
 .venv
-lorenz_attractor.csv
+data/lorenz_attractor.csv
 __pycache__
+
