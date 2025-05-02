@@ -45,6 +45,7 @@ model = model.to(cuda)
 
 criterion = nn.MSELoss()
 optim = torch.optim.SGD(model.parameters(), lr=learn_rate)
+scaler = torch.cuda.amp.GradScaler()
 
 for xb, yb in tqdm(train_loader, desc="Training", unit="batch"):
     xb, yb = xb.squeeze(0), yb.squeeze(0)
@@ -58,7 +59,9 @@ for xb, yb in tqdm(train_loader, desc="Training", unit="batch"):
     else: 
         train_loss = final_loss
 
-    train_loss.backward()
-    optim.step()
-    optim.zero_grad()
+    # new approach with scaler to increase test of the training
+    scaler.scale(loss).backward()
+    scaler.step(optim)
+    scaler.update()
+    optim.zero_grad(set_to_none=True) # check reasonability of the flag set_to_none=True
 
