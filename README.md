@@ -9,10 +9,4 @@ Tomashchuk Korney Kirillovich
 Seminar Instructor, Department of Data Analysis and Artificial Intelligence, Faculty of Computer Science
 Junior Research Fellow, International Laboratory of Intelligent Systems and Structural Analysis, Faculty of Computer Science
 
-if Pylance shows warings add:
-```json
-"python.analysis.diagnosticSeverityOverrides": {
-    "reportUndefinedVariable": "none"
-}
-```
-to the "settings.json"
+

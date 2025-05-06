@@ -3,4 +3,5 @@
 * implement way of multiplication batches of Z_blocks and weight matrix
 * test new approach with scaler to increase test of the training
 * Try caching (optional)
+* Add scaling 
 

@@ -2,10 +2,17 @@ from data_load import *
 import torch
 import torch.nn as nn
 from tqdm import tqdm 
-from box import Box
 
-globals().update(Box.from_yaml(filename="params.yaml"))
 
+L= 3
+K= 5
+num_of_cpu_workers=   12
+hidden_neurons=       50
+learn_rate=           1e-3
+batch_size=           1
+shuffle=              False
+custom_loss=          True
+custom_loss_la=       0.5
 
 class NN(nn.Module):
     def __init__(self, L, K, la, hidden_neurons):
@@ -22,11 +29,8 @@ class NN(nn.Module):
         )
 
     def forward(self, x):
-        print(x.shape)
         x_m = self.ZBW @ x 
-        print(x_m.shape)
         x_m = x_m + self.ZBB
-        print(x_m.shape)
         x = self.FC(x_m)
         return x, x_m
 
@@ -40,7 +44,7 @@ data_tensor = torch.from_numpy(data).float().view(-1)
 train = ZTD(data_tensor, alphas, L, K)
 train_loader = DataLoader(train, batch_size, shuffle, generator=Generator, **kwargs)
 
-model = NN(L, K, la, hidden_neurons)
+model = NN(L, K, custom_loss_la, hidden_neurons)
 model = model.to(cuda)
 
 criterion = nn.MSELoss()
@@ -51,10 +55,10 @@ for xb, yb in tqdm(train_loader, desc="Training", unit="batch"):
     xb, yb = xb.squeeze(0), yb.squeeze(0)
     xb, yb = xb.to(cuda), yb.to(cuda)
     xb, modules_xbs = model(xb)
-    modules_loss = sum(criterion(xb_i, yb) for xb_i in modules_xbs) / len(modules_xbs)
     final_loss = criterion(xb, yb)
 
     if custom_loss:
+        modules_loss = torch.sum([criterion(xb_i, yb) for xb_i in modules_xbs]) / len(modules_xbs)
         train_loss = model.la * final_loss + (1 - model.la) * modules_loss  
     else: 
         train_loss = final_loss
