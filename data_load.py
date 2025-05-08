@@ -1,5 +1,6 @@
 import itertools
 import pandas as pd
+import numpy as np
 import torch
 from torch.utils.data import *
 
@@ -10,6 +11,18 @@ from torch.utils.data import *
 # other approach is to decrease density of alphas in list,
 # so that we extend horizons and keep memory not exceeding limit
 
+def dump_tensor_to_csv(t, path, sep = ",",width = 8,precision = 6):
+    arr = t.detach().cpu().numpy()
+    with open(path, 'w') as f:
+        for row in arr:
+            parts = []
+            for v in row:
+                p = precision - 1 if v < 0 else precision
+                if sep == ",":
+                    parts.append(f"{v:.{p}f}")
+                else:
+                    parts.append(f"{v: {width}.{p}f}")
+            f.write(sep.join(parts) + "\n")
 
 def generate_alpha(L, K):
     for combination in itertools.product(range(1, K + 1), repeat=L):
@@ -25,8 +38,11 @@ def create_alpha_list(L, K, prefix=True, reverse=True):
     return alphas
 
 class ZTD(Dataset):
-    """ZTD - Z-blocks TimeSeries Dataset"""
-    def __init__(self, data, alphas, forecast_horizon=1, backward_indexation=False):
+    """ 
+    ZTD - Z-blocks TimeSeries Dataset
+    return concatenated Z-vectors int the form of a long single vector
+    """
+    def __init__(self, data, alphas, backward_indexation=False, forecast_horizon=1):
         self.data = data
         self.alphas = alphas
 
@@ -40,7 +56,7 @@ class ZTD(Dataset):
         return self.length_of_timeseries - self.maxind - self.forecast_horizon + 1
 
     def __getitem__(self, idx):
-        if idx >= len(self) or idx <= -len(self):
+        if idx >= len(self) or idx < -len(self):
             raise IndexError("Index out of range")
         if self.backward_indexation:
             if idx < 0:
@@ -54,7 +70,8 @@ class ZTD(Dataset):
         x = torch.tensor([], dtype=torch.float32)
 
         for alpha in self.alphas:
-            x = torch.cat((x, self.data[idx - alpha].unsqueeze(0)), dim=0)
+            x = torch.cat((x, self.data[idx - alpha]), dim=0)
         y = self.data[idx : idx + self.forecast_horizon]
         
         return x, y
+

@@ -1,7 +1,8 @@
-* Do (0,1) normalization of the data
+* [DONE] Do (0,1) normalization of the data
 * Do regularisation for all of the weights
-* implement way of multiplication batches of Z_blocks and weight matrix
-* test new approach with scaler to increase test of the training
+* [DONE] implement way of multiplication batches of Z_blocks and weight matrix
+* [TRIED] test new approach with scaler to increase test of the training
+
 * Try caching (optional)
-* Add scaling 
+* Add scaling (optional)
 
