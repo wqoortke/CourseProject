@@ -8,28 +8,21 @@ K= 5
 num_of_cpu_workers=   12
 hidden_neurons=       50
 learn_rate=           1e-3
-batch_size=           20
+batch_size=           1
 shuffle=              False
 custom_loss=          False
 custom_loss_rate=     0.5
 # ZTD parameters 
 backward_index=       False
 
+
 class NN(nn.Module):
     def __init__(self, L, K, gen, hidden_neurons, fully_connected):
         super().__init__()
         N = K ** L
-        ZBW_matrix = torch.randn((L * N, N), device="cuda") * 0.1
-        ZBB_matrix = torch.randn((N, )     , device="cuda") * 0.1
+
         
-        if not fully_connected:
-            for j in range(N):
-                for i in range(L * N):
-                    if i not in range(j*L, ((j+1)*L)):
-                        ZBW_matrix[i][j] = 0
         
-        self.ZBW = nn.Parameter(ZBW_matrix, requires_grad=False) # Z_block_weights
-        self.ZBB = nn.Parameter(ZBB_matrix) # Z_block_bias
         self.FC = nn.Sequential(
             nn.ReLU(),
             nn.Linear(K ** L, hidden_neurons),
@@ -38,11 +31,12 @@ class NN(nn.Module):
         )
 
     def forward(self, x):
-        x_m = x @ self.ZBW
-        x_m = x_m + self.ZBB
-        x = self.FC(x_m)
+        
 
-        return x, x_m
+        x = self.FC(x)
+
+        return x, x
+
 
 gen = torch.Generator(device="cpu")
 kwargs = {'num_workers': num_of_cpu_workers, 'pin_memory': True}
@@ -58,26 +52,20 @@ model = model.to("cuda")
 
 criterion = nn.MSELoss()
 optim = torch.optim.SGD(model.parameters(), lr=learn_rate)
-scaler = torch.amp.GradScaler(
-    "cuda",
-    enabled=torch.cuda.is_available(),
-    init_scale=2.**16,      # starting loss scale
-    growth_factor=2.0,      # multiply scale when no inf/NaN for a while
-    backoff_factor=0.5,     # divide scale on inf/NaN
-    growth_interval=2000    # number of steps to wait before growing
-)
+# scaler = torch.amp.GradScaler(
+#     "cuda",
+#     enabled=torch.cuda.is_available(),
+#     init_scale=2.**16,                    # starting loss scale
+#     growth_factor=2.0,                    # multiply scale when no inf/NaN for a while
+#     backoff_factor=0.5,                   # divide scale on inf/NaN
+#     growth_interval=2000                  # number of steps to wait before growing
+# )
 
-i = 0
-list1 = []
+
 for xb, yb in tqdm(train_loader, desc="Training", unit="batch"):
-    i+=1
     xb, yb = xb.to("cuda"), yb.to("cuda")
     # with torch.amp.autocast("cuda", dtype=torch.float16):
-    
-    
     xb, modules_xbs = model(xb)
-    # dump_tensor_to_csv(model.ZBW, f"ZBW_{i}th_iter.csv")
-    list1.append(model.ZBW)
 
     final_loss = criterion(xb, yb)
     if custom_loss:
@@ -86,17 +74,12 @@ for xb, yb in tqdm(train_loader, desc="Training", unit="batch"):
     else: 
         train_loss = final_loss
 
-    # new approach with scaler to increase test of the training
     # scaler.scale(train_loss).backward()
     # scaler.step(optim)
     # scaler.update()
     # optim.zero_grad() # check reasonability of the flag set_to_none=True
-
     train_loss.backward()
     optim.step()
     optim.zero_grad()
-    if i > 40: break
-
-for i in range(1, len(list1)):
-    print(torch.equal(list1[i-1], list1[i]))
+    
 

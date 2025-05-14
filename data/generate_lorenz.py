@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
-import time
 
 
 def lorenz(t, state, sigma, rho, beta):
@@ -35,5 +33,5 @@ df = pd.DataFrame({
 })
 
 df.drop(["Y", "Z"], axis=1, inplace=True)
-df.to_csv('lorenz_attractor.csv', index=False) 
+df.to_csv('data/lorenz_attractor.csv', index=False) 
 

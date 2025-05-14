@@ -1,7 +1,6 @@
 ## Course Project on the topic: "Constructing a neural network model for time series forecasting based on irregular Z vectors"
 
-Avdeev Evgenyi
-Student, Applied mathematics and informatics, Faculty of Computer Science
+Avdeev Evgeniy Sergeevich, Applied mathematics and informatics, Student at Faculty of Computer Science
 
 Project Supervisor:
 
